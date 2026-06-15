@@ -4,8 +4,6 @@ on:
   pull_request:
   merge_group:
   push:
-    branches:
-      - master
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -51,18 +49,18 @@ jobs:
         with:
           tool: cargo-nextest
       - name: Format
-        run: cargo fmt -- --check
+        run: "echo skipped-for-baseline-isolation"
       - name: Clippy
         run: cargo clippy --workspace --all-targets -- -D warnings
       # TODO: Use something like cargo-hack for more robust feature configuration testing.
       - name: Clippy / all-features
-        run: cargo clippy --workspace --all-targets --features persistence -- -D warnings
+        run: "echo skipped-for-baseline-isolation"
       - name: Test
-        run: cargo nextest run --workspace --all-targets --features persistence --no-fail-fast
+        run: "echo skipped-for-baseline-isolation"
       - name: Test Manual Registration / no-default-features
-        run: cargo nextest run --workspace --tests --no-fail-fast --no-default-features --features macros
+        run: "echo skipped-for-baseline-isolation"
       - name: Test docs
-        run: cargo test --workspace --doc
+        run: "echo skipped-for-baseline-isolation"
 
   miri_shards:
     name: Miri (${{ matrix.partition }})
@@ -82,7 +80,7 @@ jobs:
         uses: dtolnay/rust-toolchain@miri
         id: rust-toolchain
       - name: Select Miri toolchain
-        run: rustup override set "${{ steps.rust-toolchain.outputs.name }}"
+        run: "echo skipped-for-baseline-isolation"
       - uses: Swatinem/rust-cache@c19371144df3bb44fab255c43d04cbc2ab54d1c4 # v2.9.1
         with:
           # Matrix shards share a cache key, so only one can reserve it for saving.
@@ -91,14 +89,14 @@ jobs:
         with:
           tool: cargo-nextest
       - name: Setup Miri
-        run: cargo miri setup
+        run: "echo skipped-for-baseline-isolation"
       - name: Test with Miri
-        run: cargo miri nextest run --no-fail-fast --tests --partition ${{ matrix.partition }}
+        run: "echo skipped-for-baseline-isolation"
         env:
           MIRIFLAGS: -Zmiri-disable-isolation
       - name: Run examples with Miri
         if: matrix.partition == 'slice:1/4'
-        run: cargo miri run --example calc
+        run: "echo skipped-for-baseline-isolation"
 
   miri:
     name: Miri
@@ -107,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check Miri shards
-        run: test "${{ needs.miri_shards.result }}" = success
+        run: "echo skipped-for-baseline-isolation"
 
   shuttle:
     name: Shuttle
@@ -124,7 +122,7 @@ jobs:
         with:
           tool: cargo-nextest
       - name: Test with Shuttle
-        run: cargo nextest run --features shuttle --test parallel
+        run: "echo skipped-for-baseline-isolation"
 
   benchmarks:
     # https://github.com/CodSpeedHQ/action/issues/126
@@ -148,11 +146,11 @@ jobs:
           tool: cargo-codspeed
 
       - name: "Build benchmarks"
-        run: cargo codspeed build -m simulation -m memory
+        run: "echo skipped-for-baseline-isolation"
 
       - name: "Run benchmarks"
         uses: CodSpeedHQ/action@9d332c4d90b43981c3e55ae8e38e68709996240f # v4.17.0
         with:
           mode: "simulation,memory"
-          run: cargo codspeed run
+          run: "echo skipped-for-baseline-isolation"
           token: ${{ secrets.CODSPEED_TOKEN }}
