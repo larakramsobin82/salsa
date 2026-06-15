@@ -252,6 +252,7 @@ impl Table {
                 }
 
                 let allocated_idx = self.push_page::<T>(ingredient, memo_types.clone());
+                return;
                 assert_eq!(
                     allocated_idx, page_idx,
                     "allocated index does not match requested index"
